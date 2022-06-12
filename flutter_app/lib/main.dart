@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:record/record.dart';
+
+import 'MyCustomRecorder.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,9 +27,9 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'PLANET'),
     );
   }
 }
@@ -48,17 +53,54 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  String status_text = "Idling";
+  final record = MyCustomRecordWindows();
 
-  void _incrementCounter() {
+  void _incrementCounter() async {
+    bool isRecording = await record.isRecording();
+    bool hasPermission = await record.hasPermission();
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+
+      // Check and request permission
+      if (hasPermission) {
+        if (!isRecording) {
+
+          // Start recording
+          startRecording();
+        }
+      }
+      return;
     });
+  }
+
+  void stopRecording() {
+    status_text = "Recording stopped";
+    record.stop();
+  }
+
+  void startRecording() {
+    status_text = "Recording in progress";
+    record.start(
+      path: './myFile.wav',
+      encoder: AudioEncoder.wav, // by default
+      samplingRate: 44100,
+      maxTime: 5000, // ms
+      //bitRate: 128000, // by default
+    );
+
+    // Start timer
+    Timer.periodic(
+      const Duration(milliseconds: 1100), (Timer timer) {
+        setState(() {
+          stopRecording();
+        });
+      },
+    );
   }
 
   @override
@@ -95,20 +137,17 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              status_text,
+              style: Theme.of(context).textTheme.headline5,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        tooltip: 'Record',
+        child: const Icon(Icons.audio_file_outlined),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
