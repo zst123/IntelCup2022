@@ -54,6 +54,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String status_text = "Idling";
+  double? progress_animation = null;
   final record = MyCustomRecordWindows();
 
   void _incrementCounter() async {
@@ -69,7 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // Check and request permission
       if (hasPermission) {
         if (!isRecording) {
-
           // Start recording
           startRecording();
         }
@@ -79,11 +79,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void stopRecording() {
+    progress_animation = 0;
     status_text = "Recording stopped";
     record.stop();
   }
 
   void startRecording() {
+    progress_animation = null;
     status_text = "Recording in progress";
     record.start(
       path: './myFile.wav',
@@ -98,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
       const Duration(milliseconds: 1100), (Timer timer) {
         setState(() {
           stopRecording();
+          timer.cancel();
         });
       },
     );
@@ -140,6 +143,10 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               status_text,
               style: Theme.of(context).textTheme.headline5,
+            ),
+            LinearProgressIndicator(
+              minHeight: 5,
+              value: progress_animation,
             ),
           ],
         ),
