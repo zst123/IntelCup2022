@@ -100,13 +100,13 @@ class _MyHomePageState extends State<MyHomePage> {
       path: "tmp.wav",
       encoder: AudioEncoder.wav, // by default
       samplingRate: 44100,
-      maxTime: 1000, // ms
+      maxTime: 1, // sec
       //bitRate: 128000, // by default
     );
 
     // Start timer
     Timer.periodic(
-      const Duration(milliseconds: 1100), (Timer timer) {
+      const Duration(milliseconds: 1300), (Timer timer) {
         setState(() {
           stopRecording();
           timer.cancel();
