@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
+import 'package:intl/intl.dart';
 
 import 'MyCustomRecorder.dart';
 
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.purple,
       ),
-      home: const MyHomePage(title: 'PLANET'),
+      home: const MyHomePage(title: 'PLANET Training Interface'),
     );
   }
 }
@@ -56,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String status_text = "Idling";
   double? progress_animation = null;
   final record = MyCustomRecordWindows();
+  String fileprefix = "";
 
   void _incrementCounter() async {
     bool isRecording = await record.isRecording();
@@ -85,10 +87,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startRecording() {
+    DateTime now = DateTime.now();
+    String datetimestring = DateFormat("yyyyMMdd_kkmmss").format(now);
+    String filename = fileprefix.isEmpty ?
+                      "keyword-$datetimestring.wav":
+                      "$fileprefix-$datetimestring.wav";
+
     progress_animation = null;
     status_text = "Recording in progress";
     record.start(
-      path: './myFile.wav',
+      path: './$filename.wav',
       encoder: AudioEncoder.wav, // by default
       samplingRate: 44100,
       maxTime: 5000, // ms
@@ -101,6 +109,17 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           stopRecording();
           timer.cancel();
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                // Retrieve the text the that user has entered by using the
+                // TextEditingController.
+                content: Text("Saved to $filename.wav"),
+              );
+            },
+          );
+
         });
       },
     );
@@ -140,6 +159,23 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              "Enter keyword for training",
+              style: Theme.of(context).textTheme.headline5,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child:
+              TextField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Keyword',
+                ),
+                onChanged: (text) {
+                  fileprefix = text;
+                },
+              ),
+            ),
             Text(
               status_text,
               style: Theme.of(context).textTheme.headline5,
