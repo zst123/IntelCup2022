@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
@@ -90,16 +91,16 @@ class _MyHomePageState extends State<MyHomePage> {
     DateTime now = DateTime.now();
     String datetimestring = DateFormat("yyyyMMdd_kkmmss").format(now);
     String filename = fileprefix.isEmpty ?
-                      "keyword-$datetimestring.wav":
+                      "Keyword-$datetimestring.wav" :
                       "$fileprefix-$datetimestring.wav";
 
     progress_animation = null;
     status_text = "Recording in progress";
     record.start(
-      path: './$filename.wav',
+      path: "tmp.wav",
       encoder: AudioEncoder.wav, // by default
       samplingRate: 44100,
-      maxTime: 5000, // ms
+      maxTime: 1000, // ms
       //bitRate: 128000, // by default
     );
 
@@ -109,13 +110,14 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           stopRecording();
           timer.cancel();
+          File('tmp.wav').rename(filename);
           showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 // Retrieve the text the that user has entered by using the
                 // TextEditingController.
-                content: Text("Saved to $filename.wav"),
+                content: Text("Saved to $filename"),
               );
             },
           );

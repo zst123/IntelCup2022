@@ -112,7 +112,7 @@ class MyCustomRecordWindows extends RecordPlatform {
       '--record',
       '--out=$path',
       '--rate=$samplingRate',
-      '--channels=2',
+      '--channels=mono',
       '--globcmd=listen',
       '--gain=6.0',
       '--until=$maxTime',
