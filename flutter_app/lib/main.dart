@@ -56,7 +56,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String status_text = "Idling";
-  double? progress_animation = null;
+  bool progress_animation = false;
   final record = MyCustomRecordWindows();
   String fileprefix = "";
 
@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void stopRecording() {
-    progress_animation = 0;
+    progress_animation = false;
     status_text = "Recording stopped";
     record.stop();
   }
@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       "Keyword-$datetimestring.wav" :
                       "$fileprefix-$datetimestring.wav";
 
-    progress_animation = null;
+    progress_animation = true;
     status_text = "Recording in progress";
     record.start(
       path: "tmp.wav",
@@ -166,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headline5,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child:
               TextField(
                 decoration: const InputDecoration(
@@ -182,9 +182,15 @@ class _MyHomePageState extends State<MyHomePage> {
               status_text,
               style: Theme.of(context).textTheme.headline5,
             ),
-            LinearProgressIndicator(
-              minHeight: 5,
-              value: progress_animation,
+            const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+            ),
+            if (progress_animation) const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
+              child: LinearProgressIndicator(
+                minHeight: 5,
+                value: null,
+              ),
             ),
           ],
         ),
