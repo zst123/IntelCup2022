@@ -178,12 +178,18 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
                 },
               ),
             ),
-            Text(
-              status_text,
-              style: Theme.of(context).textTheme.headline5,
+            ElevatedButton.icon(
+              onPressed: _incrementCounter,
+              style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
+              label: const Text('Record'),
+              icon: const Icon(Icons.record_voice_over),
             ),
-            const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
+            Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                    status_text,
+                    style: Theme.of(context).textTheme.headline5,
+                ),
             ),
             if (progress_animation) const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
@@ -195,11 +201,6 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Record',
-        child: const Icon(Icons.audio_file_outlined),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
