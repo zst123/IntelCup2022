@@ -164,7 +164,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('AlertDialog Title'),
+        title: const Text('Settings'),
         content: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
