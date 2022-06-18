@@ -90,7 +90,7 @@ class MyCustomRecordWindows extends RecordPlatform {
     AudioEncoder encoder = AudioEncoder.aacLc,
     int bitRate = 128000,
     int samplingRate = 44100,
-    int maxTime = 1000000,
+    double maxTime = 3600,
   }) async {
     await stop();
 
@@ -115,7 +115,7 @@ class MyCustomRecordWindows extends RecordPlatform {
       '--channels=mono',
       '--globcmd=listen',
       '--gain=6.0',
-      '--until=$maxTime',
+      '--until=${maxTime.toStringAsFixed(3)}',
       ..._getEncoderSettings(encoder, bitRate),
     ]);
 
@@ -184,6 +184,7 @@ class MyCustomRecordWindows extends RecordPlatform {
   }
 
   Future<int> _callFMedia(List<String> arguments) async {
+    print(arguments);
     final result = await Process.start('$_assetsDir\\fmedia.exe', [
       '--globcmd.pipe-name=$_pipeProcName',
       ...arguments,

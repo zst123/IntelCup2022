@@ -87,6 +87,8 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
 
   void startRecording() {
     DateTime now = DateTime.now();
+    const double maxTime = 1.5;
+
     String datetimestring = DateFormat("yyyyMMdd_kkmmss").format(now);
     String filename = fileprefix.isEmpty ?
                       "Keyword-$datetimestring.wav" :
@@ -98,13 +100,13 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
       path: "tmp.wav",
       encoder: AudioEncoder.wav, // by default
       samplingRate: 44100,
-      maxTime: 1, // sec
+      maxTime: maxTime, // sec
       //bitRate: 128000, // by default
     );
 
     // Start timer
     Timer.periodic(
-      const Duration(milliseconds: 1300), (Timer timer) {
+      Duration(milliseconds: (maxTime*1000 + 250).toInt()), (Timer timer) {
         setState(() {
           stopRecording();
           timer.cancel();
