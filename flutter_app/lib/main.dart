@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:record/record.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'MyCustomRecorder.dart';
 
@@ -58,9 +60,28 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
   final record = MyCustomRecordWindows();
   String fileprefix = "";
 
+  int prefSamplingRate = 44100;
+  double prefRecordingTime = 1.0;
+  Future updatePreferences({
+    int newSamplingRate = -1,
+    double newRecordingTime = -1,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (newSamplingRate > 0) await prefs.setInt('prefSamplingRate', newSamplingRate);
+    if (newRecordingTime > 0) await prefs.setDouble('prefRecordingTime', newRecordingTime);
+
+    prefSamplingRate = prefs.getInt('prefSamplingRate') ?? 44100;
+    prefRecordingTime = prefs.getDouble('prefRecordingTime') ?? 1.0;
+
+    return;
+  }
+
   void _incrementCounter() async {
     bool isRecording = await record.isRecording();
     bool hasPermission = await record.hasPermission();
+    await updatePreferences();
+
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -72,7 +93,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
       if (hasPermission) {
         if (!isRecording) {
           // Start recording
-          startRecording();
+          startRecording(prefSamplingRate, prefRecordingTime);
         }
       }
       return;
@@ -85,9 +106,8 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     record.stop();
   }
 
-  void startRecording() {
+  void startRecording(int samplingRate, double maxTime) {
     DateTime now = DateTime.now();
-    const double maxTime = 1.5;
 
     String datetimestring = DateFormat("yyyyMMdd_kkmmss").format(now);
     String filename = fileprefix.isEmpty ?
@@ -99,7 +119,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     record.start(
       path: "tmp.wav",
       encoder: AudioEncoder.wav, // by default
-      samplingRate: 44100,
+      samplingRate: samplingRate,
       maxTime: maxTime, // sec
       //bitRate: 128000, // by default
     );
@@ -124,6 +144,64 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
 
         });
       },
+    );
+  }
+
+  void _settingsPane() async {
+    await updatePreferences();
+    double tempSamplingRate = prefSamplingRate.toDouble();
+    double tempRecordingTime = prefRecordingTime;
+
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('AlertDialog Title'),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text('Sampling Rate (Hz)'),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SpinBox(
+                min: 1,
+                max: 100000,
+                value: tempSamplingRate,
+                decimals: 0,
+                step: 1,
+                onChanged: (double val) => { tempSamplingRate = val },
+              ),
+            ),
+            const Text('Recording Time (sec)'),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SpinBox(
+                min: 0.1,
+                max: 10.0,
+                value: tempRecordingTime,
+                decimals: 1,
+                step: 0.1,
+                onChanged: (double val) => { tempRecordingTime = val },
+              ),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, 'Save');
+              updatePreferences(
+                  newSamplingRate: tempSamplingRate.toInt(),
+                  newRecordingTime: tempRecordingTime,
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -183,6 +261,15 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
               style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
               label: const Text('Record'),
               icon: const Icon(Icons.record_voice_over),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+            ),
+            ElevatedButton.icon(
+              onPressed: _settingsPane,
+              style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
+              label: const Text('Settings'),
+              icon: const Icon(Icons.settings),
             ),
             Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
