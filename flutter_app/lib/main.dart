@@ -6,10 +6,15 @@ import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:record/record.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:desktop_window/desktop_window.dart';
 
 import 'MyCustomRecorder.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    DesktopWindow.setWindowSize(const Size(800,600));
+  }
   runApp(const MyApp());
 }
 
