@@ -100,10 +100,14 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     });
   }
 
-  void stopRecording() {
+  void stopRecording({int delay = 0}) {
     progress_animation = false;
     status_text = "Recording stopped";
-    record.stop();
+    if (delay > 0) {
+      Future.delayed(Duration(milliseconds: delay), () => record.stop());
+    } else {
+      record.stop();
+    }
   }
 
   void startRecording(int samplingRate, double maxTime) {
@@ -126,9 +130,9 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
 
     // Start timer
     Timer.periodic(
-      Duration(milliseconds: (maxTime*1000 + 250).toInt()), (Timer timer) {
+      Duration(milliseconds: (maxTime*1000 - 400).toInt()), (Timer timer) {
         setState(() {
-          stopRecording();
+          stopRecording(delay: 400+250);
           timer.cancel();
           File('tmp.wav').rename(filename);
           showDialog(
