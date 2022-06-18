@@ -31,13 +31,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.purple,
       ),
-      home: const MyHomePage(title: 'PLANET Training Interface'),
+      home: const MyTrainingPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class MyTrainingPage extends StatefulWidget {
+  const MyTrainingPage({Key? key}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -48,13 +48,11 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
-
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyTrainingPage> createState() => _MyTrainingPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyTrainingPageState extends State<MyTrainingPage> {
   String status_text = "Idling";
   bool progress_animation = false;
   final record = MyCustomRecordWindows();
@@ -139,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('PLANET Training Interface'),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
