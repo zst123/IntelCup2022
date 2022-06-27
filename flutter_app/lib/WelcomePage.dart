@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intelcup/main.dart';
+import 'package:process_run/process_run.dart';
+
+import 'DashboardPage.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -56,6 +59,25 @@ class _WelcomePageState extends State<WelcomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical:10),
                     textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
                 child: const Text('Start Training!'),
+              ),
+            ),
+
+            const Padding(padding: EdgeInsets.all(16.0)),
+
+            SizedBox(
+              height: 60.0,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (ctx) => const DashboardPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.purple,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical:10),
+                    textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
+                child: const Text('Dashboard'),
               ),
             ),
           ],
