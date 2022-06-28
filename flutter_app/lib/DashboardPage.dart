@@ -13,6 +13,11 @@ class _DashboardPageState extends State<DashboardPage> {
   String body_text = "";
   Process? process;
 
+  ScrollController? scrollController;
+  _DashboardPageState() {
+    scrollController = ScrollController();
+  }
+
   Future<void> _stopShellProcess() async {
     if (process != null) {
       process?.kill();
@@ -27,12 +32,17 @@ class _DashboardPageState extends State<DashboardPage> {
     await _stopShellProcess();
 
     // TODO: change to inference process
-    process = await Process.start('ping', ['8.8.8.8']);
+    //process = await Process.start('ping', ['8.8.8.8']);
+    process = await Process.start('python3', ['mic_test.py']);
+    process?.stderr
+        .transform(utf8.decoder)
+        .forEach(print);
     await process?.stdout
         .transform(utf8.decoder)
         .forEach((String line) {
       // Upon receiving the line
       body_text += line;
+      print(line);
       setState(() {});
     });
 
@@ -42,6 +52,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Add a one time post frame callback, that scrolls the view to the bottom
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController!.animateTo(
+          scrollController!.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 10),
+          curve: Curves.linear
+      );
+    });
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
@@ -54,28 +72,13 @@ class _DashboardPageState extends State<DashboardPage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              body_text,
-              style: Theme.of(context).textTheme.headline5,
-            ),
-          ],
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Container(
+            alignment: Alignment.topLeft,
+            padding: const EdgeInsets.fromLTRB(35, 130, 0, 0),
+            child: Text(body_text),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
