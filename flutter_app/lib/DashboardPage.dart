@@ -69,20 +69,43 @@ class _DashboardPageState extends State<DashboardPage> {
         // the App.build method, and use it to set our appbar title.
         title: const Text('PLANET User Dashboard'),
       ),
-      body: Center(
+      backgroundColor: Colors.white,
+      body: Column(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: SingleChildScrollView(
-          controller: scrollController,
-          child: Container(
-            alignment: Alignment.topLeft,
-            padding: const EdgeInsets.fromLTRB(35, 130, 0, 0),
-            child: Text(body_text),
+        children: <Widget> [
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Image.asset('assets/images/saturn.png',
+                      height: 180,
+                      width: 180,
+                      fit: BoxFit.cover),
+                ),
+                Column(children: const [
+                  Text(" Dashboard ",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 56.0, fontWeight: FontWeight.w500),
+                  ),
+                ]),
+              ]
           ),
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Container(
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.fromLTRB(35, 130, 0, 0),
+                child: Text(body_text),
+              ),
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Start',
+      floatingActionButton: FloatingActionButton.extended(
+        label: const Text('Start'),
         onPressed: () {
           _startShellProcess();
         },
