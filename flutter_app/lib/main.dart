@@ -229,6 +229,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
         // the App.build method, and use it to set our appbar title.
         title: const Text('PLANET Training Interface'),
       ),
+      backgroundColor: Colors.white,
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -249,9 +250,16 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Image.asset('assets/images/moon.png',
+                  height: 130,
+                  width: 130,
+                  fit: BoxFit.cover),
+            ),
+            const Text(
               "Enter keyword for training",
-              style: Theme.of(context).textTheme.headline5,
+              style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.normal),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
