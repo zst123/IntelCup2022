@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^2.0.15
   desktop_window: ^0.4.0
   process_run: ^0.12.3+2
+  audioplayers: ^1.0.1
 
 dev_dependencies:
   flutter_test:

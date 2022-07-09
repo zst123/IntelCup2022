@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
@@ -8,6 +9,10 @@ import 'package:record/record.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:desktop_window/desktop_window.dart';
+
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
+import 'dart:typed_data';
 
 import 'MyCustomRecorder.dart';
 
@@ -68,6 +73,14 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
 
   int prefSamplingRate = 44100;
   double prefRecordingTime = 1.0;
+
+  // Audio player
+  AudioPlayer player = AudioPlayer();
+  int maxduration = 100;
+  int currentpos = 0;
+  String currentpostlabel = "00:00";
+  bool isplaying = false;
+
   Future updatePreferences({
     int newSamplingRate = -1,
     double newRecordingTime = -1,
@@ -137,23 +150,124 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     // Start timer
     Timer.periodic(
       Duration(milliseconds: (maxTime*1000 - 400).toInt()), (Timer timer) {
-        setState(() {
-          stopRecording(delay: 400+250);
-          timer.cancel();
-          File('tmp.wav').rename(filename);
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                // Retrieve the text the that user has entered by using the
-                // TextEditingController.
-                content: Text("Saved to $filename"),
-              );
-            },
-          );
+      setState(() {
+        stopRecording(delay: 400+250);
+        timer.cancel();
+        File('tmp.wav').rename(filename);
 
+        // Dialog with state
+        StateSetter? _setDialogState;
+
+        showDialog(
+          context: context,
+          builder: (ctx) {
+            return AlertDialog(
+                content: StatefulBuilder(
+                    builder: (BuildContext contest, StateSetter setDialogState) {
+                      _setDialogState = setDialogState;
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 10),
+                          Text("Saved to $filename", style: TextStyle(fontSize: 15)),
+                          const SizedBox(height: 10),
+                          Text(currentpostlabel, style: TextStyle(fontSize: 25)),
+
+                          Slider(
+                            value: currentpos.toDouble(),
+                            min: 0,
+                            max: maxduration.toDouble(),
+                            divisions: maxduration,
+                            label: currentpostlabel,
+                            onChanged: (double value) async {
+                              int seekval = value.round();
+                              await player.seek(Duration(milliseconds: seekval));
+                              currentpos = seekval;
+                            },
+                          ),
+                          Wrap(
+                            spacing: 10,
+                            children: [
+                              ElevatedButton.icon(
+                                  onPressed: () {
+                                    if(!isplaying){
+                                      setDialogState(() {
+                                        isplaying = true;
+                                        currentpos = 0;
+                                        player.play(DeviceFileSource(filename));
+                                      });
+                                    } else {
+                                      player.stop();
+                                      setDialogState(() {
+                                        isplaying = false;
+                                      });
+                                    }
+                                  },
+                                  icon: Icon(isplaying ? Icons.stop : Icons.play_arrow),
+                                  label: Text(isplaying ? "Stop" : "Play")
+                              ),
+
+                              ElevatedButton.icon(
+                                  onPressed: () {
+                                    File(filename).delete().whenComplete(() {
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                  label: const Text("Delete")
+                              ),
+                            ],
+                          )
+
+                        ],
+                      );
+                    }
+                )
+            );
+          },
+        ).then((value) {
+          // on closed
+          _setDialogState = null;
         });
-      },
+
+        // Audio player controller
+        maxduration = (maxTime * 1000).toInt(); //get the duration of audio
+        StreamSubscription? positionSub;
+        positionSub = player.onPositionChanged.listen((Duration  p) {
+          // Workaround 1 second resolution in the position change
+          // by estimating the time between each callback as 2s00ms
+          if (p.inMilliseconds > currentpos) {
+            currentpos = p.inMilliseconds;
+          } else {
+            currentpos += 200;
+          }
+          currentpos = min(maxduration, currentpos); // don't exceed
+          print("onPositionChanged:" + currentpos.toString());
+          //generating the duration label
+          int sseconds = Duration(milliseconds:currentpos).inSeconds;
+          int smillis = Duration(milliseconds:currentpos).inMilliseconds;
+          int rseconds = sseconds;
+          int rmillis = smillis - rseconds*1000;
+
+          currentpostlabel = "$rseconds.${rmillis.toString().padLeft(2, "0")}";
+          if (_setDialogState == null) {
+            positionSub?.cancel();
+          } else {
+            _setDialogState!(() {});
+          }
+        });
+        StreamSubscription? completeSub;
+        completeSub = player.onPlayerComplete.listen((event) {
+          if (_setDialogState == null) {
+            completeSub?.cancel();
+          } else {
+            _setDialogState!(() {
+              isplaying = false;
+            });
+          }
+        });
+      });
+    },
     );
   }
 
