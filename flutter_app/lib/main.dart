@@ -329,6 +329,15 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     );
   }
 
+  void _startTrainModel() {
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("To be implemented"),
+          behavior: SnackBarBehavior.floating,
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -388,20 +397,24 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
                 },
               ),
             ),
-            ElevatedButton.icon(
-              onPressed: _incrementCounter,
-              style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
-              label: const Text('Record'),
-              icon: const Icon(Icons.record_voice_over),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-            ),
-            ElevatedButton.icon(
-              onPressed: _settingsPane,
-              style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
-              label: const Text('Settings'),
-              icon: const Icon(Icons.settings),
+            Wrap(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _incrementCounter,
+                  style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
+                  label: const Text('Record'),
+                  icon: const Icon(Icons.record_voice_over),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _settingsPane,
+                  style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50)),
+                  label: const Text('Settings'),
+                  icon: const Icon(Icons.settings),
+                ),
+              ],
             ),
             Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -410,16 +423,23 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
                     style: Theme.of(context).textTheme.headline5,
                 ),
             ),
-            if (progress_animation) const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
-              child: LinearProgressIndicator(
-                minHeight: 5,
-                value: null,
-              ),
-            ),
           ],
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        child: Container(
+          height: 50.0,
+          child: (progress_animation ?
+            LinearProgressIndicator(value: null) :
+            Text("")
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _startTrainModel,
+        label: Wrap(children: const [Icon(Icons.train), Text(' Train Model')]),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
