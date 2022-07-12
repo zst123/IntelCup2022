@@ -71,7 +71,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
   final record = MyCustomRecordWindows();
   String fileprefix = "";
 
-  int prefSamplingRate = 44100;
+  int prefSamplingRate = 16000;
   double prefRecordingTime = 1.0;
 
   // Audio player
@@ -90,7 +90,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     if (newSamplingRate > 0) await prefs.setInt('prefSamplingRate', newSamplingRate);
     if (newRecordingTime > 0) await prefs.setDouble('prefRecordingTime', newRecordingTime);
 
-    prefSamplingRate = prefs.getInt('prefSamplingRate') ?? 44100;
+    prefSamplingRate = prefs.getInt('prefSamplingRate') ?? 16000;
     prefRecordingTime = prefs.getDouble('prefRecordingTime') ?? 1.0;
 
     return;
