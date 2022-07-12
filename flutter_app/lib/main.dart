@@ -136,6 +136,15 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     String filename = fileprefix.isEmpty ?
                       "Keyword-$datetimestring.wav" :
                       "$fileprefix-$datetimestring.wav";
+    String folder = "./samples/";
+    if (folder.isNotEmpty) {
+      Directory dirFolder =  Directory(folder);
+      dirFolder.exists().then((folderExists) {
+        if (!folderExists) {
+          dirFolder.create();
+        }
+      });
+    }
 
     progress_animation = true;
     status_text = "Recording in progress";
@@ -153,7 +162,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
       setState(() {
         stopRecording(delay: 400+250);
         timer.cancel();
-        File('tmp.wav').rename(filename);
+        File('tmp.wav').rename(folder + filename);
 
         // Dialog with state
         StateSetter? _setDialogState;
@@ -209,7 +218,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
 
                               ElevatedButton.icon(
                                   onPressed: () {
-                                    File(filename).delete().whenComplete(() {
+                                    File(folder + filename).delete().whenComplete(() {
                                       Navigator.pop(context);
                                     });
                                   },
