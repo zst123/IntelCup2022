@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intelcup/ModelTrainingPage.dart';
 import 'package:intelcup/PersonalizePage.dart';
 import 'package:intelcup/main.dart';
 import 'package:process_run/process_run.dart';
@@ -19,6 +20,21 @@ class _WelcomePageState extends State<WelcomePage> {
         appBar: AppBar(
           centerTitle: false,
           title: const Text("Intel Cup 2022"),
+          actions: [
+            PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem<int>(
+                      value: 0,
+                      child: const Text("Clear generated model files"),
+                      onTap: () {
+                        ModelTrainingPage.runHousekeepingOnly();
+                      },
+                    ),
+                  ];
+                },
+            ),
+          ],
         ),
         backgroundColor: Colors.white,
         body: Column(

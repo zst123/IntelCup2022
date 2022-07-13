@@ -9,6 +9,10 @@ class ModelTrainingPage extends StatefulWidget {
 
   @override
   State<ModelTrainingPage> createState() => _ModelTrainingPageState();
+
+  static Future<void> runHousekeepingOnly() async {
+    await _ModelTrainingPageState.runHousekeepingOnly();
+  }
 }
 
 class _ModelTrainingPageState extends State<ModelTrainingPage> {
@@ -54,6 +58,14 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
     process?.kill();
     process = null;
   }*/
+
+  static Future<void> runHousekeepingOnly() async {
+    String workingDirectory = '../scripts/';
+    //-----------------------------------------------------------------------------------
+    Process process0 = await Process.start('python3', ['housekeeping.py'], workingDirectory: workingDirectory);
+    process0.stdout.transform(utf8.decoder).forEach(print);
+    await process0.exitCode;
+  }
 
   Future<void> _startScripts() async {
     print("Starting scripts");
