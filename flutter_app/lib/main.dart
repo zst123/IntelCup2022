@@ -203,7 +203,7 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
                                       setDialogState(() {
                                         isplaying = true;
                                         currentpos = 0;
-                                        player.play(DeviceFileSource(filename));
+                                        player.play(DeviceFileSource(folder + filename));
                                       });
                                     } else {
                                       player.stop();
