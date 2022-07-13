@@ -157,7 +157,7 @@ def thread_function(args):
     # sig = resize_length(sig, sr, len_ms)
     sig = fix_sr(sig, sr, sample_rate)
 
-    f_audio = audio
+    f_audio = "./new_data/" + audio_name
     torchaudio.save(f_audio, sig, sample_rate)
     # load the formatted audio file
     wav, sr = librosa.load(f_audio, sr=None)
