@@ -12,22 +12,15 @@ model = load_model('16kv_2.h5')
 sample_rate = 16000
 sample_queue = deque([], maxlen=12000)
 
-state_dict = {
-    0: 'Background',
-    1: 'Clap',
-    2: "Deng",
-    3: "Di Qiu",
-    4: "Grah",
-    5: "Hello",
-    6: "Kai",
-    7: "Lights",
-    8: "Music",
-    9: "On",
-    10: "Planet",
-    11: "Time",
-    12: "What",
-    14: "Unknown"
-}
+state_dict = dict()
+
+with open('./keywords.txt') as f:
+    keywords_list = f.read().splitlines()
+    no_of_keywords = len(keywords_list)
+
+    for id, keyword in enumerate(keywords_list):
+        state_dict[id] = keyword
+    state_dict[no_of_keywords] = 'unknown'
 
 
 class AudioHandler:

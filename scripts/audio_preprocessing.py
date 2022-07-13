@@ -140,7 +140,7 @@ def pitch_shift(sr, wav, factor):
 
 # def audio_modulation():
 #audio_files = glob('./samples/*/*.wav')
-audio_files = glob('../flutter_app/samples/*.wav')
+audio_files = glob('../flutter_app/samples/*.wav') + glob('../flutter_app/samples/*/*.wav')
 # count = 0
 
 if not os.path.isdir("./new_data/"):
@@ -157,7 +157,7 @@ def thread_function(args):
     # sig = resize_length(sig, sr, len_ms)
     sig = fix_sr(sig, sr, sample_rate)
 
-    f_audio = './samples/' + audio_name
+    f_audio = audio
     torchaudio.save(f_audio, sig, sample_rate)
     # load the formatted audio file
     wav, sr = librosa.load(f_audio, sr=None)

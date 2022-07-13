@@ -20,40 +20,24 @@ import matplotlib.pyplot as plt
 
 # In[143]:
 
+with open('./keywords.txt') as f:
+    keywords_list = f.read().splitlines()
+
+no_of_keywords = len(keywords_list)
 
 D = [] # Dataset
 audio_files = glob('./new_data/*.wav')
 
 for audio in audio_files:
     audio_name = audio.split('\\')[-1]
-    if audio_name[0] == "b":
-        index = 0
-    elif audio_name[0] == "c":
-        index = 1
-    elif audio_name[0] == "d" and audio_name[1] == "e":
-        index = 2
-    elif audio_name[0] == "d":
-        index = 3
-    elif audio_name[0] == "g":
-        index = 4
-    elif audio_name[0] == "h":
-        index = 5
-    elif audio_name[0] == "k":
-        index = 6
-    elif audio_name[0] == "l":
-        index = 7
-    elif audio_name[0] == "m":
-        index = 8
-    elif audio_name[0] == "o":
-        index = 9
-    elif audio_name[0] == "p":
-        index = 10
-    elif audio_name[0] == "t":
-        index = 11
-    elif audio_name[0] == "w":
-        index = 12
-    else:
-        index = 13
+
+    index = -1
+    for id, keyword in enumerate(keywords_list):
+        if audio_name.startswith(keyword):
+            index = id
+
+    if index == -1:
+        index = no_of_keywords
         print("Not tagged", audio_name)
         
     y, sr = librosa.load(audio, sr=16000, duration=1.00)
