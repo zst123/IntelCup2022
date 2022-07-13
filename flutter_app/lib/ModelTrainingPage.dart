@@ -125,6 +125,7 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: const Text('PLANET Training Interface'),
+        automaticallyImplyLeading: (progress_ratio == 1),
       ),
       backgroundColor: Colors.white,
       body: Column(
