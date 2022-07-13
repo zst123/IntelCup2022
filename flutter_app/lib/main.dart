@@ -14,6 +14,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'dart:typed_data';
 
+import 'ModelTrainingPage.dart';
 import 'MyCustomRecorder.dart';
 
 void main() {
@@ -339,11 +340,9 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
   }
 
   void _startTrainModel() {
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("To be implemented"),
-          behavior: SnackBarBehavior.floating,
-        )
+    Navigator.pop(context);
+    Navigator.push(context,
+      MaterialPageRoute(builder: (ctx) => const ModelTrainingPage()),
     );
   }
 
