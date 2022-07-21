@@ -18,6 +18,7 @@ class ModelTrainingPage extends StatefulWidget {
 class _ModelTrainingPageState extends State<ModelTrainingPage> {
 
   double progress_ratio = 0;
+  String progress_status_text = "Idle";
 
   _ModelTrainingPageState() {
     // Execute once after the first build
@@ -76,16 +77,17 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
     // 1. audio_preprocessing
     // 2. find_all_keywords
     // 3. v40_notebook
-    // 4. mic_test
     setState(() => progress_ratio = 0);
 
     //-----------------------------------------------------------------------------------
+    progress_status_text = "Cleaning up";
     Process process0 = await Process.start('python3', ['housekeeping.py'], workingDirectory: workingDirectory);
     process0.stdout.transform(utf8.decoder).forEach(print);
     await process0.exitCode;
     setState(() => progress_ratio = 0.1);
 
     //-----------------------------------------------------------------------------------
+    progress_status_text = "Audio pre-processing";
     int count1 = 0;
     Process process1 = await Process.start('python3', ['-u', 'audio_preprocessing.py'], workingDirectory: workingDirectory);
     process1.stdout.transform(utf8.decoder).forEach((String line) {
@@ -102,6 +104,7 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
     setState(() => progress_ratio = 0.3);
 
     //-----------------------------------------------------------------------------------
+    progress_status_text = "Analyzing keywords";
     Process process2 = await Process.start('python3', ['find_all_keywords.py'], workingDirectory: workingDirectory);
     process2.stdout.transform(utf8.decoder).forEach(print);
     process2.stderr.transform(utf8.decoder).forEach(print);
@@ -109,6 +112,7 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
     setState(() => progress_ratio = 0.4);
 
     //-----------------------------------------------------------------------------------
+    progress_status_text = "Building neural network";
     Process process3 = await Process.start('python3', ['v40_notebook.py'], workingDirectory: workingDirectory);
     process3.stderr.transform(utf8.decoder).forEach(print);
     process3.stdout.transform(utf8.decoder).forEach((String line) {
@@ -118,6 +122,12 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
       print(line);
     });
     await process3.exitCode;
+
+    if (File('${workingDirectory}16kv_2.h5').existsSync()) {
+      progress_status_text = "Successfully trained";
+    } else {
+      progress_status_text = "Error detected during training";
+    }
     setState(() => progress_ratio = 1.0);
   }
 
@@ -152,6 +162,11 @@ class _ModelTrainingPageState extends State<ModelTrainingPage> {
           Text(progress_ratio < 1 ? " Generating Your Model " : " Your Model Is Ready",
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 36.0, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10.0),
+          Text(progress_status_text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700),
           ),
         ],
 
