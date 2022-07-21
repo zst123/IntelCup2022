@@ -3,6 +3,7 @@
 
 # In[1]:
 
+
 import keras
 from keras.layers import Activation, Dense, Dropout, Conv2D,                          Flatten, MaxPooling2D
 from keras.models import Sequential
@@ -18,7 +19,7 @@ warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 
 
-# In[143]:
+# In[187]:
 
 with open('./keywords.txt') as f:
     keywords_list = f.read().splitlines()
@@ -40,19 +41,23 @@ for audio in audio_files:
         index = no_of_keywords
         print("Not tagged", audio_name)
         
-    y, sr = librosa.load(audio, sr=16000, duration=1.00)
-    ps = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=64,
-                                    fmin=0, fmax=8000)
-    if ps.shape != (64, 24): 
+    y, sr = librosa.load(audio, sr=16000, duration=1.00)  # Duration is actually 0.75, just to confirm all files are of that length
+    ps = librosa.feature.mfcc(y, sr=sr)
+    if ps.shape != (20, 24): 
         print(audio_name)
         print(ps.shape)
         continue
-    ps = librosa.amplitude_to_db(ps, ref=np.min)
 
     D.append( (ps, index) )
 
 
-# In[151]:
+# In[ ]:
+
+
+len(D)
+
+
+# In[406]:
 
 
 dataset = D
@@ -65,29 +70,29 @@ X_train, y_train = zip(*train)
 X_test, y_test = zip(*test)
 
 # Reshape for CNN input
-X_train = np.array([x.reshape( (64, 24, 1) ) for x in X_train])
-X_test = np.array([x.reshape( (64, 24, 1) ) for x in X_test])
+X_train = np.array([x.reshape( (20, 24, 1) ) for x in X_train])
+X_test = np.array([x.reshape( (20, 24, 1) ) for x in X_test])
 
 # One-Hot encoding for classes
 y_train = np.array(keras.utils.np_utils.to_categorical(y_train, 20))
 y_test = np.array(keras.utils.np_utils.to_categorical(y_test, 20))
 
 
-# In[159]:
+# In[18]:
 
 
 model = Sequential()
-input_shape=(64, 24, 1)
+input_shape=(20, 24, 1)
 
-model.add(Conv2D(24, (5, 5), strides=(1, 1), input_shape=input_shape, padding="same"))
-model.add(MaxPooling2D((4, 2), strides=(4, 2)))
+model.add(Conv2D(24, (3, 3), strides=(1, 1), input_shape=input_shape, padding="same"))
+model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 model.add(Activation('relu'))
 
-model.add(Conv2D(48, (5, 5), padding="same"))
-model.add(MaxPooling2D((4, 2), strides=(4, 2)))
+model.add(Conv2D(24, (3, 3), padding="same"))
+model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 model.add(Activation('relu'))
 
-model.add(Conv2D(48, (5, 5), padding="same"))
+model.add(Conv2D(24, (3, 3), padding="same"))
 model.add(Activation('relu'))
 
 model.add(Flatten())
@@ -97,8 +102,10 @@ model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(rate=0.5))
 
-model.add(Dense(20))
+model.add(Dense(30))
 model.add(Activation('sigmoid'))
+
+
 
 model.compile(
 	optimizer="Adam",
@@ -106,7 +113,7 @@ model.compile(
 	metrics=['accuracy'])
 
 
-# In[162]:
+# In[515]:
 
 
 
@@ -125,7 +132,7 @@ print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
 
-# In[163]:
+# In[14]:
 
 
 from keras.models import load_model
@@ -155,19 +162,3 @@ Audio(audio)
 
 
 model.summary()
-
-
-# The dataset consists of:
-# - 1-7467 normal samples.
-# - 7468-14934 samples Pitch modulated 2.5 semitones higher.
-# - 14935-22401 samples Pitch modeulated 2 semitones higher.
-# - 22402-29869 samples Slowed down to 0.81.
-# - 29869-37310 samples speed up by 1.07
-# 
-# Follow the same procedure for the normal data.
-
-# In[88]:
-
-
-feat.shape
-
