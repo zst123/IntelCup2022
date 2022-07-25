@@ -102,6 +102,7 @@ class _PersonalizePageState extends State<PersonalizePage> {
 
   List<Widget> createActionList() {
     const List actions = [
+      ['Trigger', Icons.start],
       ['Time', Icons.access_time_outlined],
       ['Weather', Icons.sunny],
       ['Lights', Icons.lightbulb],
