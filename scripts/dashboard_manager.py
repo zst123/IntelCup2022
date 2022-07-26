@@ -52,10 +52,13 @@ def main():
     # Handle the 3 process outputs concurrently
     def enqueue_output(prefix, out):
         while True:
-            nextline = out.readline()
-            if len(nextline) > 0:
-                print(prefix, nextline.decode(), end="", flush=True)
-                # sys.stdout.flush()
+            try:
+                nextline = out.readline()
+                if len(nextline) > 0:
+                    print(prefix + ' ' + nextline.decode(), end="", flush=True)
+                    # sys.stdout.flush()
+            except e:
+                print(e)
 
     t1 = Thread(target=enqueue_output, args=('@@', process1.stdout,))
     t1.daemon = True # thread dies with the program
