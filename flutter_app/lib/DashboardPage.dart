@@ -61,6 +61,11 @@ class _DashboardPageState extends State<DashboardPage> {
             }
         )
     );
+
+    // Execute once after the first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startShellProcess();
+    });
   }
 
   Future<void> _triggerWord() {
@@ -87,6 +92,11 @@ class _DashboardPageState extends State<DashboardPage> {
         Navigator.pop(context);
       });
     }
+  }
+
+  Future<void> _killShellProcess() async {
+    // taskkill -im python3.10.exe -f
+    await (await Process.start('taskkill', ['-im', 'python3.10.exe', '-f'])).exitCode;
   }
 
   Future<void> _stopShellProcess() async {
@@ -120,8 +130,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
 
     // Force kill existing python processes in case earlier socket was not released
-    // taskkill -im python3.10.exe -f
-    await (await Process.start('taskkill', ['-im', 'python3.10.exe', '-f'])).exitCode;
+    await _killShellProcess();
 
     void handleReceivedLine(String line) {
       print("<$line>");
@@ -184,6 +193,19 @@ class _DashboardPageState extends State<DashboardPage> {
               return [
                 PopupMenuItem<int>(
                   value: 0,
+                  onTap: () async {
+                    await _killShellProcess();
+                    setState(() => body_text = "Killed");
+                  },
+                  child: const Text("Kill dashboard manager"),
+                ),
+                PopupMenuItem<int>(
+                  value: 0,
+                  onTap: () => _startShellProcess(),
+                  child: const Text("Restart dashboard manager"),
+                ),
+                PopupMenuItem<int>(
+                  value: 0,
                   onTap: _triggerWord,
                   child: const Text("Force trigger word"),
                 ),
@@ -232,12 +254,6 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Start'),
-        onPressed: () {
-          _startShellProcess();
-        },
       ),
     );
   }
