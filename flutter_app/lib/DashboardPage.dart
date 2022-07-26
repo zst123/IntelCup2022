@@ -1,8 +1,11 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:intelcup/PersonalizePage.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -99,20 +102,59 @@ class _DashboardPageState extends State<DashboardPage> {
   void _startShellProcess() async {
     await _stopShellProcess();
 
-    // TODO: change to inference process
-    //process = await Process.start('ping', ['8.8.8.8']);
-    process = await Process.start('python3', ['mic_test.py']);
+    // Generate activate_command_list.txt
+    var prefs = await SharedPreferences.getInstance();
+    String action = PersonalizePage.actions.first[0].toString();
+    String triggerWord = prefs.getString('pref1_$action') ?? '';
+    File f = File('../scripts/activate_command_list.txt');
+    f.writeAsStringSync("$triggerWord\n", mode: FileMode.write);
+    print("Wrote to ${f.toString()}: $triggerWord");
+    
+    // Generate action_command_list.txt
+    File f2 = File('../scripts/action_command_list.txt');
+    f2.writeAsStringSync("", mode: FileMode.write);
+    for (var action in PersonalizePage.actions.sublist(1)) {
+      String actionWords = prefs.getString('pref1_${action[0]}') ?? '';
+      f2.writeAsStringSync("$actionWords\n", mode: FileMode.append);
+      print("Wrote to ${f2.toString()}: $actionWords");
+    }
+
+    // Force kill existing python processes in case earlier socket was not released
+    // taskkill -im python3.10.exe -f
+    await (await Process.start('taskkill', ['-im', 'python3.10.exe', '-f'])).exitCode;
+
+    void handleReceivedLine(String line) {
+      print("<$line>");
+      setState(() => body_text += line);
+      // Dashboard is listening
+      if (!isDashboardReady) {
+        if (line.contains("\$\$ predict start") || line.contains("1/1 [==============================]")) {
+          isDashboardReady = true;
+          setState(() {});
+        }
+      }
+      // Dashboard trigger word
+      if (line.contains("@@ recieve:  #_0")) {
+        _triggerWord();
+      } else if (line.contains("@@ recieve:")) { // Dashboard Action
+        String action = line.split('@@ recieve:')[1].split('\$\$')[0].trim();
+        int actionIndex = int.tryParse(action) ?? -1;
+        if (actionIndex > 0) {
+          action = PersonalizePage.actions[actionIndex][0].toString();
+          _triggerAction(action);
+        }
+      }
+    }
+
+    // Start dashboard manager script
+    String workingDirectory = '../scripts/';
+    process = await Process.start('python3', ['-u', '../scripts/dashboard_manager.py'], runInShell: true, workingDirectory: workingDirectory);
     process?.stderr
         .transform(utf8.decoder)
-        .forEach(print);
+        .forEach(handleReceivedLine);
     await process?.stdout
         .transform(utf8.decoder)
-        .forEach((String line) {
-      // Upon receiving the line
-      body_text += line;
-      print(line);
-      setState(() {});
-    });
+        .forEach(handleReceivedLine);
 
     process?.kill();
     process = null;

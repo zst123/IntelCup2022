@@ -4,6 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalizePage extends StatefulWidget {
+  static const actions = [
+    ['Trigger', Icons.start],
+    ['Time', Icons.access_time_outlined],
+    ['Weather', Icons.sunny],
+    ['Lights', Icons.lightbulb],
+  ];
   const PersonalizePage({Key? key}) : super(key: key);
 
   @override
@@ -101,12 +107,7 @@ class _PersonalizePageState extends State<PersonalizePage> {
   }
 
   List<Widget> createActionList() {
-    const List actions = [
-      ['Trigger', Icons.start],
-      ['Time', Icons.access_time_outlined],
-      ['Weather', Icons.sunny],
-      ['Lights', Icons.lightbulb],
-    ];
+    const List actions = PersonalizePage.actions;
     List<Widget> widgets = [];
     for (var action in actions) {
       Widget item = Padding(

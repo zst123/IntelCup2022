@@ -28,4 +28,11 @@ try:
 except OSError as e:
     print("Error:", e.strerror)
 
+# Remove files for intel_Cup_keyword_identifier
+try:
+    os.remove('action_command_list.txt')
+    os.remove('activate_command_list.txt')
+except OSError as e:
+    print("Error:", e.strerror)
+
 print("Done")
