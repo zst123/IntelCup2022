@@ -21,6 +21,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   AlertDialog? triggerDialog;
   StateSetter? triggerDialogSetState;
+  bool triggerDialogOpen = false;
   String triggerKeyword = "";
 
   ScrollController? scrollController;
@@ -75,12 +76,17 @@ class _DashboardPageState extends State<DashboardPage> {
     // Then display dialog
     // https://stackoverflow.com/questions/69568862/flutter-showdialog-is-not-shown-on-popupmenuitem-tap
     return Future<void>.delayed(const Duration(milliseconds: 100), () {
-      showDialog(
-          context: context,
-          builder: (_) {
-            return triggerDialog ?? const Text("");
-          }
-      );
+      if (!triggerDialogOpen) {
+        triggerDialogOpen = true;
+        showDialog(
+            context: context,
+            builder: (_) {
+              return triggerDialog ?? const Text("");
+            }
+        ).then((value) {
+          triggerDialogOpen = false;
+        });
+      }
     });
   }
 
@@ -89,7 +95,9 @@ class _DashboardPageState extends State<DashboardPage> {
       triggerDialogSetState!.call(() => triggerKeyword = action);
       // Close dialog a while after the keyword is triggered
       Future<void>.delayed(const Duration(milliseconds: 1500), () {
-        Navigator.pop(context);
+        if (triggerDialogOpen) {
+          Navigator.pop(context);
+        }
       });
     }
   }
