@@ -92,13 +92,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void _triggerAction(String action) {
     if (triggerDialogSetState != null) {
-      triggerDialogSetState!.call(() => triggerKeyword = action);
-      // Close dialog a while after the keyword is triggered
-      Future<void>.delayed(const Duration(milliseconds: 1500), () {
-        if (triggerDialogOpen) {
-          Navigator.pop(context);
-        }
-      });
+      if (action.contains("_#")) { // Indicate end of action words
+        triggerDialogSetState!.call(() => triggerKeyword = action.replaceAll("_#", ""));
+        // Close dialog a while after the keyword is triggered
+        Future<void>.delayed(const Duration(milliseconds: 1500), () {
+          if (triggerDialogOpen) {
+            Navigator.pop(context);
+          }
+        });
+      } else {
+        triggerDialogSetState!.call(() => triggerKeyword = action);
+      }
     }
   }
 
@@ -151,15 +155,11 @@ class _DashboardPageState extends State<DashboardPage> {
         }
       }
       // Dashboard trigger word
-      if (line.contains("@@ recieve:  #_0")) {
+      if (line.contains("@@ recieve:  #_")) {
         _triggerWord();
       } else if (line.contains("@@ recieve:")) { // Dashboard Action
         String action = line.split('@@ recieve:')[1].split('\$\$')[0].trim();
-        int actionIndex = int.tryParse(action) ?? -1;
-        if (actionIndex > 0) {
-          action = PersonalizePage.actions[actionIndex][0].toString();
-          _triggerAction(action);
-        }
+        _triggerAction(action);
       }
     }
 
