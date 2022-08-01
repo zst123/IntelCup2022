@@ -7,7 +7,10 @@ class PersonalizePage extends StatefulWidget {
   static const actions = [
     ['Trigger', Icons.start],
     ['Time', Icons.access_time_outlined],
+    ['Date', Icons.date_range],
     ['Weather', Icons.sunny],
+    ['Temperature', Icons.hot_tub],
+    ['Music', Icons.queue_music],
     ['Lights', Icons.lightbulb],
   ];
   const PersonalizePage({Key? key}) : super(key: key);
