@@ -25,6 +25,7 @@ class _DashboardPageState extends State<DashboardPage> {
   String triggerKeyword = "";
 
   ScrollController? scrollController;
+
   _DashboardPageState() {
     scrollController = ScrollController();
 
@@ -69,6 +70,11 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  void _doTheAction(String action_name) {
+    print("_doTheAction: $action_name");
+
+  }
+
   Future<void> _triggerWord() {
     // Reset keyword display
     triggerKeyword = "";
@@ -90,10 +96,16 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  Map<String, String> action_mapping = {};
   void _triggerAction(String action) {
     if (triggerDialogSetState != null) {
       if (action.contains("_#")) { // Indicate end of action words
         triggerDialogSetState!.call(() => triggerKeyword = action.replaceAll("_#", ""));
+        // Check the action to be called
+        String action_name = action_mapping[triggerKeyword.trim()] ?? "Nothing";
+        print("Action call: [$triggerKeyword] -> $action_name");
+        _doTheAction(action_name);
+
         // Close dialog a while after the keyword is triggered
         Future<void>.delayed(const Duration(milliseconds: 1500), () {
           if (triggerDialogOpen) {
@@ -133,13 +145,16 @@ class _DashboardPageState extends State<DashboardPage> {
     print("Wrote to ${f.toString()}: $triggerWord");
     
     // Generate action_command_list.txt
+    action_mapping.clear();
     File f2 = File('../scripts/action_command_list.txt');
     f2.writeAsStringSync("", mode: FileMode.write);
     for (var action in PersonalizePage.actions.sublist(1)) {
       String actionWords = prefs.getString('pref1_${action[0]}') ?? '';
       f2.writeAsStringSync("$actionWords\n", mode: FileMode.append);
       print("Wrote to ${f2.toString()}: $actionWords");
+      action_mapping[actionWords] = "${action[0]}";
     }
+    print("Action mapping: $action_mapping");
 
     // Force kill existing python processes in case earlier socket was not released
     await _killShellProcess();
