@@ -347,6 +347,64 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
     );
   }
 
+  void _showSamplesStatistics() {
+    Map<String, int> map = {};
+    int total_count = 0;
+
+    // Count each keyword inside directory.
+    String folder = "./samples/";
+    Directory dirFolder = Directory(folder);
+
+    if (dirFolder.existsSync()) {
+      dirFolder.listSync(recursive: true).forEach((element) {
+        String thepath = element.path.replaceAll("\\", "/");
+        String filename = thepath.split("/").last;
+        if (filename.endsWith(".wav")) {
+          String keyword = filename.split("-").first;
+          if(!map.containsKey(keyword)) {
+            map[keyword] = 1;
+          } else {
+            map[keyword] = map[keyword]! + 1;
+          }
+          total_count += 1;
+        }
+      });
+    }
+
+    print("Map: $map");
+
+    List<Widget> cards = [];
+    map.forEach((String key, int value) {
+      var mycard = ListTile(
+        visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+        title: Text(key),
+        trailing: Text("$value"),
+      );
+      cards.add(mycard);
+    });
+
+    var mycard = ListTile(
+      visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+      title: const Text("Total", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple),),
+      trailing: Text("$total_count", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.purple),),
+    );
+    cards.add(mycard);
+
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Samples Count'),
+            content: SingleChildScrollView(
+              child: Column(children: cards),
+            )
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -360,6 +418,12 @@ class _MyTrainingPageState extends State<MyTrainingPage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: const Text('PLANET Training Interface'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _showSamplesStatistics,
+          )
+        ],
       ),
       backgroundColor: Colors.white,
       body: Center(
