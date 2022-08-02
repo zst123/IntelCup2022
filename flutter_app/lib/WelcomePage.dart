@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intelcup/ModelTrainingPage.dart';
 import 'package:intelcup/PersonalizePage.dart';
@@ -29,6 +31,14 @@ class _WelcomePageState extends State<WelcomePage> {
                       child: const Text("Clear generated model files"),
                       onTap: () {
                         ModelTrainingPage.runHousekeepingOnly();
+                      },
+                    ),
+                    PopupMenuItem<int>(
+                      value: 1,
+                      child: const Text("Kill Python processes"),
+                      onTap: () async {
+                        // taskkill -im python3.10.exe -f
+                        await (await Process.start('taskkill', ['-im', 'python3.10.exe', '-f'])).exitCode;
                       },
                     ),
                   ];
