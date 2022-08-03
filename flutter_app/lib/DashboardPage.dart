@@ -25,6 +25,7 @@ class _DashboardPageState extends State<DashboardPage> {
   String triggerKeyword = "";
 
   ScrollController? scrollController;
+  bool nightMode = false;
 
   _DashboardPageState() {
     scrollController = ScrollController();
@@ -244,21 +245,21 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: nightMode ? const Color.fromARGB(255, 10, 10, 50) : Colors.white,
       body: Column(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         children: <Widget> [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 40),
             child: Text("Dashboard",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 56.0, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 56.0, fontWeight: FontWeight.w700, color: nightMode ? Colors.white : Colors.black),
             ),
           ),
           Text(isDashboardReady ? "Listening..." : "Starting process...",
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700, color: nightMode ? Colors.white : Colors.black),
           ),
           SizedBox(
               height: 200, width: 800,
@@ -272,7 +273,10 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Container(
                 alignment: Alignment.topLeft,
                 padding: const EdgeInsets.fromLTRB(35, 130, 0, 0),
-                child: Text(body_text),
+                child: Text(
+                  body_text,
+                  style: TextStyle(color: nightMode ? Colors.white : Colors.black),
+                ),
               ),
             ),
           ),
