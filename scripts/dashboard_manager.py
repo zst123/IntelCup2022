@@ -18,7 +18,8 @@ def enqueue_output(print_queue, prefix, command):
                 if prefix == '$$' and b'[==============================]' in nextline:
                     continue
                 else:
-                    print_queue.put(prefix + ' ' + str(nextline.decode('utf-8')))
+                    if (print_queue is not None):
+                        print_queue.put(prefix + ' ' + str(nextline.decode('utf-8')))
         except KeyboardInterrupt:
             return
         except:
@@ -31,16 +32,17 @@ def enqueue_output(print_queue, prefix, command):
 def main():
     # Start multiprocessing processes
     mp.set_start_method('spawn')
+    mp_queue_isolated = mp.Queue()
     mp_queue = mp.Queue()
 
     # Process 1
     print("* Launching test_server.py")
     command1 = "python3 -u ../intel_Cup_keyword_identifier/test_server.py"
-    t1 = mp.Process(target=enqueue_output, args=(mp_queue, '@@', command1,))
+    t1 = mp.Process(target=enqueue_output, args=(mp_queue_isolated, '@@', command1,))
     t1.daemon = True # thread dies with the program
     t1.start()
     while True:
-        nextline = mp_queue.get()
+        nextline = mp_queue_isolated.get()
         sys.stdout.write(nextline)
         if "@@ [LISTENING] " in nextline:
             break
@@ -48,11 +50,11 @@ def main():
     # Process 2
     print("* Launching identify_keyword.py")
     command2 = "python3 -u ../intel_Cup_keyword_identifier/identify_keyword.py"
-    t2 = mp.Process(target=enqueue_output, args=(mp_queue, '>>', command2,))
+    t2 = mp.Process(target=enqueue_output, args=(mp_queue_isolated, '>>', command2,))
     t2.daemon = True # thread dies with the program
     t2.start()
     while True:
-        nextline = mp_queue.get()
+        nextline = mp_queue_isolated.get()
         sys.stdout.write(nextline)
         if ">> addr1 combined successfully!" in nextline:
             break
@@ -78,10 +80,16 @@ def main():
         # print() was causing race condition,
         # write directly to stdout instead
         try:
-            nextline = mp_queue.get()
-            sys.stdout.write(str(nextline))
+            if not mp_queue.empty():
+                nextline = mp_queue.get()
+                sys.stdout.write(str(nextline))
+
+            elif not mp_queue_isolated.empty():
+                nextline2 = mp_queue_isolated.get()
+                sys.stdout.write(str(nextline2))
+
         except Exception as e:
-            raise Exception("The error is:" + str(nextline))
+            #raise Exception("The error is:" + str(nextline))
             print("Main thread error", e)
             break
 
