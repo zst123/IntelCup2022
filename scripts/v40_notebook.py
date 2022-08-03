@@ -74,8 +74,8 @@ X_train = np.array([x.reshape( (20, 24, 1) ) for x in X_train])
 X_test = np.array([x.reshape( (20, 24, 1) ) for x in X_test])
 
 # One-Hot encoding for classes
-y_train = np.array(keras.utils.np_utils.to_categorical(y_train, 30))
-y_test = np.array(keras.utils.np_utils.to_categorical(y_test, 30))
+y_train = np.array(keras.utils.np_utils.to_categorical(y_train, 20))
+y_test = np.array(keras.utils.np_utils.to_categorical(y_test, 20))
 
 
 # In[18]:
@@ -102,7 +102,7 @@ model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(rate=0.5))
 
-model.add(Dense(30))
+model.add(Dense(20))
 model.add(Activation('sigmoid'))
 
 
