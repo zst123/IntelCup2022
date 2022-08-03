@@ -94,12 +94,6 @@ class _DashboardPageState extends State<DashboardPage> {
           triggerDialogOpen = false;
           triggerDialogSetState = null;
         });
-        // Close dialog a while after timeout
-        Future<void>.delayed(const Duration(milliseconds: 8000), () {
-          if (triggerDialogOpen) {
-            Navigator.pop(context);
-          }
-        });
       }
     });
   }
@@ -123,6 +117,13 @@ class _DashboardPageState extends State<DashboardPage> {
       } else {
         triggerDialogSetState!.call(() => triggerKeyword = action);
       }
+    }
+  }
+
+  void _triggerClose() {
+    print("_triggerClose");
+    if (triggerDialogOpen) {
+      Navigator.pop(context);
     }
   }
 
@@ -189,6 +190,8 @@ class _DashboardPageState extends State<DashboardPage> {
       // Dashboard trigger word
       if (line.contains("@@ recieve:  #_")) {
         _triggerWord();
+      } else if (line.contains("\$_timeout_\$")) { // Dashboard Close Dialog
+        _triggerClose();
       } else if (line.contains("@@ recieve:")) { // Dashboard Action
         String action = line.split('@@ recieve:')[1].split('\$\$')[0].trim();
         _triggerAction(action);
