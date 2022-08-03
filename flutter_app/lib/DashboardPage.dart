@@ -92,6 +92,13 @@ class _DashboardPageState extends State<DashboardPage> {
             }
         ).then((value) {
           triggerDialogOpen = false;
+          triggerDialogSetState = null;
+        });
+        // Close dialog a while after timeout
+        Future<void>.delayed(const Duration(milliseconds: 8000), () {
+          if (triggerDialogOpen) {
+            Navigator.pop(context);
+          }
         });
       }
     });
@@ -160,13 +167,22 @@ class _DashboardPageState extends State<DashboardPage> {
     // Force kill existing python processes in case earlier socket was not released
     await _killShellProcess();
 
+    int handleCount = 0;
     void handleReceivedLine(String line) {
-      print("<$line>");
-      setState(() => body_text += line);
+      print("<${line.trim()}>");
+      body_text += line;
+
       // Dashboard is listening
       if (!isDashboardReady) {
         if (line.contains("\$\$ predict start") || line.contains("1/1 [==============================]")) {
           isDashboardReady = true;
+        }
+        setState(() {});
+      } else {
+        // During inference, update state every alternate line to reduce lag
+        handleCount += 1;
+        if (handleCount == 3) {
+          handleCount = 0;
           setState(() {});
         }
       }
@@ -189,18 +205,14 @@ class _DashboardPageState extends State<DashboardPage> {
         .transform(utf8.decoder)
         .forEach(handleReceivedLine);
 
-    process?.kill();
-    process = null;
   }
 
   @override
   Widget build(BuildContext context) {
     // Add a one time post frame callback, that scrolls the view to the bottom
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollController!.animateTo(
+      scrollController!.jumpTo(
           scrollController!.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 10),
-          curve: Curves.linear
       );
     });
     // The Flutter framework has been optimized to make rerunning build methods
