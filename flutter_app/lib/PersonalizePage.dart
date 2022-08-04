@@ -66,6 +66,13 @@ class _PersonalizePageState extends State<PersonalizePage> {
                   setDialogState(() {});
                   setState(() {});
                 },
+                onLongPress: () {
+                  print("Pill button long pressed $text, $add_remove");
+                  associated.add(text);
+                  setKeywordsAssociated(action, associated);
+                  setDialogState(() {});
+                  setState(() {});
+                }
               );
             }
 
