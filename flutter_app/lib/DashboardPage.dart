@@ -436,6 +436,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 PopupMenuItem<int>(
                   value: 0,
+                  onTap: () => nightMode = !nightMode,
+                  child: const Text("Toggle night mode"),
+                ),
+                PopupMenuItem<int>(
+                  value: 0,
                   onTap: _triggerWord,
                   child: const Text("Force trigger word"),
                 ),
@@ -480,14 +485,14 @@ class _DashboardPageState extends State<DashboardPage> {
                 Lottie.network("https://assets10.lottiefiles.com/private_files/lf30_lv4zofni.json") :
                 const Center(child: CircularProgressIndicator())
           ),
-          if (consoleViewEnabled) Expanded(
+          Expanded(
             child: SingleChildScrollView(
               controller: scrollController,
               child: Container(
                 alignment: Alignment.topLeft,
                 padding: const EdgeInsets.fromLTRB(35, 130, 0, 0),
                 child: Text(
-                  body_text.join(""),
+                  (consoleViewEnabled) ? body_text.join("") : "",
                   style: TextStyle(color: nightMode ? Colors.white : Colors.black),
                 ),
               ),
