@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:intelcup/PersonalizePage.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,9 +73,68 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  void _doTheAction(String action_name) {
-    print("_doTheAction: $action_name");
+  Process? tts_process;
+  void _readTTS(String text) async {
+    print("** Read TTS: $text");
+    String workingDirectory = '../Intel_Cup_voice_feedback/';
 
+    // For first run, start the process
+    if (tts_process == null) {
+      tts_process = await Process.start('python3', ['-u', 'text_to_speech.py'], runInShell: false, workingDirectory: workingDirectory);
+      tts_process?.exitCode.then((value) {
+        // Upon process exiting, delete reference to object to prevent memory leak
+        tts_process = null;
+      });
+    }
+
+    // Subsequent runs, read the text
+    tts_process?.stdin.writeln(text);
+
+    // Show snackbar label
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(duration: const Duration(seconds: 10), content: Text(text))
+      );
+    }
+  }
+
+  void _doTheAction(String action_name) async {
+    print("_doTheAction: $action_name");
+    String workingDirectory = '../Intel_Cup_voice_feedback/';
+
+    if (action_name == 'Trigger') {
+      _readTTS("How may I help you?");
+    } else if (action_name == 'Lights') {
+      setState(() => nightMode = !nightMode);
+      _readTTS("Switching the lights");
+    } else if (action_name == 'Lights-On') {
+      setState(() => nightMode = false);
+      _readTTS("Turning on the lights");
+    } else if (action_name == 'Lights-Off') {
+      setState(() => nightMode = true);
+      _readTTS("Turning off the lights");
+    } else if (action_name == 'Time') {
+      String formattedTime = DateFormat('hh:mm a').format(DateTime.now());
+      _readTTS("The time now is $formattedTime");
+    } else if (action_name == 'Date') {
+      String formattedDate = DateFormat('dd MMMM yyyy ').format(DateTime.now());
+      _readTTS("Today's date is $formattedDate");
+    } else if (action_name == 'Weather') {
+      Process.start('python3', ['-u', 'weather_report.py'], runInShell: false, workingDirectory: workingDirectory).then((pr) {
+        pr.stdout.transform(utf8.decoder).forEach((line) {
+          if (line.trim().isNotEmpty) {
+            _readTTS("$line");
+          }
+        });
+      });
+    } else if (action_name == 'Temperature') {
+
+    } else if (action_name == 'Music') {
+
+    } else {
+      _readTTS("Unknown action");
+    }
   }
 
   Future<void> _triggerWord() {
@@ -85,6 +145,7 @@ class _DashboardPageState extends State<DashboardPage> {
     // https://stackoverflow.com/questions/69568862/flutter-showdialog-is-not-shown-on-popupmenuitem-tap
     return Future<void>.delayed(const Duration(milliseconds: 100), () {
       if (!triggerDialogOpen) {
+        _doTheAction("Trigger");
         triggerDialogOpen = true;
         showDialog(
             context: context,
