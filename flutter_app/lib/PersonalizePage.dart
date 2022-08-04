@@ -9,7 +9,10 @@ class PersonalizePage extends StatefulWidget {
     ['Time', Icons.access_time_outlined],
     ['Date', Icons.date_range],
     ['Weather', Icons.sunny],
-    ['Music', Icons.queue_music],
+    ['Music-Start', Icons.music_note],
+    ['Music-Stop', Icons.music_off],
+    ['Music-VolumeUp', Icons.volume_up],
+    ['Music-VolumeDown', Icons.volume_up],
     ['Lights-On', Icons.light_mode],
     ['Lights-Off', Icons.light_mode_outlined],
   ];

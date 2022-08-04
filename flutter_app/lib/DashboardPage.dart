@@ -73,6 +73,15 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  void showSnackbar(String text) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(duration: const Duration(seconds: 10), content: Text(text))
+      );
+    }
+  }
+
   Process? tts_process;
   void _readTTS(String text) async {
     print("** Read TTS: $text");
@@ -91,11 +100,76 @@ class _DashboardPageState extends State<DashboardPage> {
     tts_process?.stdin.writeln(text);
 
     // Show snackbar label
-    if (mounted) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(duration: const Duration(seconds: 10), content: Text(text))
-      );
+    showSnackbar(text);
+  }
+
+  bool musicPlaying = false;
+  int musicVolume = 0;
+  Process? music_process;
+  void _playMusic() async {
+    print("** Play Music");
+    String workingDirectory = '../Intel_Cup_voice_feedback/';
+
+    // For first run, start the process
+    if (music_process == null) {
+      music_process = await Process.start('python3', ['-u', 'play_music.py'], runInShell: false, workingDirectory: workingDirectory);
+      musicVolume = 50;
+      musicPlaying = true;
+      music_process?.exitCode.then((value) {
+        // Upon process exiting, delete reference to object to prevent memory leak
+        music_process = null;
+        musicPlaying = false;
+      });
+    }
+
+    // Subsequent runs, play the music
+    musicPlaying = true;
+    music_process?.stdin.writeln("-3"); // -3 = play
+    await music_process?.stdin.flush();
+
+
+    // Show snackbar label
+    showSnackbar("Playing music");
+  }
+  void _pauseMusic() async {
+    if (music_process != null) {
+      music_process?.stdin.writeln("-2"); // -2 = pause
+      await music_process?.stdin.flush();
+      musicPlaying = false;
+    }
+    showSnackbar("Stopping music");
+  }
+  void _increaseMusic() async {
+    if (music_process != null) {
+      musicVolume += 10;
+      if (musicVolume > 100) musicVolume = 100;
+      music_process?.stdin.writeln("$musicVolume");
+      await music_process?.stdin.flush();
+    }
+    showSnackbar("Increasing music volume");
+  }
+  void _decreaseMusic() async {
+    if (music_process != null) {
+      musicVolume -= 10;
+      if (musicVolume < 0) musicVolume = 0;
+      music_process?.stdin.writeln("$musicVolume");
+      await music_process?.stdin.flush();
+    }
+    showSnackbar("Decrease music volume");
+  }
+
+  void _handleMusicDuringTrigger(bool dialogShowing) async {
+    if (dialogShowing) {
+      // Lower
+      if (music_process != null) {
+        //music_process?.stdin.writeln("-2"); // -2 = pause
+        music_process?.stdin.writeln("30"); // temporarily reduce volume
+      }
+    } else {
+      if (music_process != null) {
+        //music_process?.stdin.writeln("-3"); // -3 = play
+        music_process?.stdin.writeln("$musicVolume"); // set back to original volume
+      }
     }
   }
 
@@ -130,8 +204,14 @@ class _DashboardPageState extends State<DashboardPage> {
       });
     } else if (action_name == 'Temperature') {
 
-    } else if (action_name == 'Music') {
-
+    } else if (action_name == 'Music-Start') {
+      _playMusic();
+    } else if (action_name == 'Music-Stop') {
+      _pauseMusic();
+    } else if (action_name == 'Music-VolumeUp') {
+      _increaseMusic();
+    } else if (action_name == 'Music-VolumeDown') {
+      _decreaseMusic();
     } else {
       _readTTS("Unknown action");
     }
@@ -146,6 +226,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return Future<void>.delayed(const Duration(milliseconds: 100), () {
       if (!triggerDialogOpen) {
         _doTheAction("Trigger");
+        _handleMusicDuringTrigger(true);
         triggerDialogOpen = true;
         showDialog(
             context: context,
@@ -153,6 +234,7 @@ class _DashboardPageState extends State<DashboardPage> {
               return triggerDialog ?? const Text("");
             }
         ).then((value) {
+          _handleMusicDuringTrigger(false);
           triggerDialogOpen = false;
           triggerDialogSetState = null;
         });
@@ -294,6 +376,24 @@ class _DashboardPageState extends State<DashboardPage> {
         // the App.build method, and use it to set our appbar title.
         title: const Text('PLANET User Dashboard'),
         actions: [
+          FlatButton(
+            textColor: Colors.white,
+            onPressed: () {},
+            child: Text("$musicVolume%"),
+            shape: CircleBorder(side: BorderSide(color: Colors.transparent)),
+          ),
+          IconButton(
+            onPressed: () {
+              if (!musicPlaying) {
+                _playMusic();
+              } else {
+                _pauseMusic();
+              }
+            },
+            icon: musicPlaying ? const Icon(Icons.music_note) : const Icon(Icons.music_off),
+            tooltip: "$musicVolume%",
+          ),
+
           PopupMenuButton(
             itemBuilder: (context) {
               return [
