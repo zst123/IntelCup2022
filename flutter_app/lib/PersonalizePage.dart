@@ -9,9 +9,9 @@ class PersonalizePage extends StatefulWidget {
     ['Time', Icons.access_time_outlined],
     ['Date', Icons.date_range],
     ['Weather', Icons.sunny],
-    ['Temperature', Icons.hot_tub],
     ['Music', Icons.queue_music],
-    ['Lights', Icons.lightbulb],
+    ['Lights-On', Icons.light_mode],
+    ['Lights-Off', Icons.light_mode_outlined],
   ];
   const PersonalizePage({Key? key}) : super(key: key);
 
