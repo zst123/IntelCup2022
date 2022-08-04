@@ -82,6 +82,23 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  void _triggerSound() async {
+    String workingDirectory = '../Intel_Cup_voice_feedback/';
+
+    // For first run, start the process
+    Process process = await Process.start('python3', ['-u', 'play_peep.py'], runInShell: false, workingDirectory: workingDirectory);
+    await process.exitCode;
+  }
+
+  void _timeoutSound() async {
+    String workingDirectory = '../Intel_Cup_voice_feedback/';
+
+    // For first run, start the process
+    Process process = await Process.start('python3', ['-u', 'play_timeout.py'], runInShell: false, workingDirectory: workingDirectory);
+    await process.exitCode;
+  }
+
+
   Process? tts_process;
   void _readTTS(String text) async {
     print("** Read TTS: $text");
@@ -178,7 +195,7 @@ class _DashboardPageState extends State<DashboardPage> {
     String workingDirectory = '../Intel_Cup_voice_feedback/';
 
     if (action_name == 'Trigger') {
-      _readTTS("How may I help you?");
+      _triggerSound();
     } else if (action_name == 'Lights') {
       setState(() => nightMode = !nightMode);
       _readTTS("Switching the lights");
@@ -297,7 +314,7 @@ class _DashboardPageState extends State<DashboardPage> {
     File f = File('../scripts/activate_command_list.txt');
     f.writeAsStringSync("$triggerWord\n", mode: FileMode.write);
     print("Wrote to ${f.toString()}: $triggerWord");
-    
+
     // Generate action_command_list.txt
     action_mapping.clear();
     File f2 = File('../scripts/action_command_list.txt');
@@ -342,6 +359,7 @@ class _DashboardPageState extends State<DashboardPage> {
         _triggerWord();
       } else if (line.contains("\$_timeout_\$")) { // Dashboard Close Dialog
         _triggerClose();
+        _timeoutSound();
       } else if (line.contains("@@ recieve:")) { // Dashboard Action
         String action = line.split('@@ recieve:')[1].split('\$\$')[0].trim();
         _triggerAction(action);
