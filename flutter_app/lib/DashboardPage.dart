@@ -26,6 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   ScrollController? scrollController;
   bool nightMode = false;
+  bool consoleViewEnabled = true;
 
   _DashboardPageState() {
     scrollController = ScrollController();
@@ -218,11 +219,11 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     // Add a one time post frame callback, that scrolls the view to the bottom
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollController!.jumpTo(
-          scrollController!.position.maxScrollExtent,
-      );
-    });
+    if (consoleViewEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController!.jumpTo(scrollController!.position.maxScrollExtent);
+      });
+    }
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
@@ -247,6 +248,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   value: 0,
                   onTap: () => _startShellProcess(),
                   child: const Text("Restart dashboard manager"),
+                ),
+                PopupMenuItem<int>(
+                  value: 0,
+                  onTap: () => consoleViewEnabled = !consoleViewEnabled,
+                  child: const Text("Toggle console view"),
                 ),
                 PopupMenuItem<int>(
                   value: 0,
@@ -287,7 +293,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Lottie.network("https://assets10.lottiefiles.com/private_files/lf30_lv4zofni.json") :
                 const Center(child: CircularProgressIndicator())
           ),
-          Expanded(
+          if (consoleViewEnabled) Expanded(
             child: SingleChildScrollView(
               controller: scrollController,
               child: Container(
