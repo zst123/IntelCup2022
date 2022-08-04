@@ -270,6 +270,13 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           ),
         ],
+        leading: BackButton(
+          onPressed: () {
+            // Kill python processes automatically upon exiting
+            _killShellProcess();
+            Navigator.pop(context);
+          },
+        ),
       ),
       backgroundColor: nightMode ? const Color.fromARGB(255, 10, 10, 50) : Colors.white,
       body: Column(
