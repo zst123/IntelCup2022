@@ -178,10 +178,6 @@ class _PersonalizePageState extends State<PersonalizePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Start'),
-        onPressed: () {},
-      ),
     );
   }
 }
