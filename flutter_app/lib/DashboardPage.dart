@@ -15,7 +15,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  String body_text = "";
+  List<String> body_text = [];
   Process? process;
   bool isDashboardReady = false;
 
@@ -138,7 +138,7 @@ class _DashboardPageState extends State<DashboardPage> {
       process = null;
       await process?.exitCode;
     }
-    body_text = "";
+    body_text.clear();
     setState(() {});
   }
 
@@ -171,7 +171,12 @@ class _DashboardPageState extends State<DashboardPage> {
     int handleCount = 0;
     void handleReceivedLine(String line) {
       print("<${line.trim()}>");
-      body_text += line;
+
+      /// Limit max console length to 300 lines
+      if (body_text.length > 300) {
+        body_text.removeAt(0);
+      }
+      body_text.add(line);
 
       // Dashboard is listening
       if (!isDashboardReady) {
@@ -234,7 +239,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   value: 0,
                   onTap: () async {
                     await _killShellProcess();
-                    setState(() => body_text = "Killed");
+                    setState(() => body_text.add("Killed"));
                   },
                   child: const Text("Kill dashboard manager"),
                 ),
@@ -289,7 +294,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 alignment: Alignment.topLeft,
                 padding: const EdgeInsets.fromLTRB(35, 130, 0, 0),
                 child: Text(
-                  body_text,
+                  body_text.join(""),
                   style: TextStyle(color: nightMode ? Colors.white : Colors.black),
                 ),
               ),
