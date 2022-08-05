@@ -291,6 +291,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> _killShellProcess() async {
     // taskkill -im python3.10.exe -f
     isDashboardReady = false;
+    await (await Process.start('taskkill', ['-im', 'python3.exe', '-f'])).exitCode;
     await (await Process.start('taskkill', ['-im', 'python3.10.exe', '-f'])).exitCode;
   }
 

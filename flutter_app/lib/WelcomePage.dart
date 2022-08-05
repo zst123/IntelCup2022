@@ -38,6 +38,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       child: const Text("Kill Python processes"),
                       onTap: () async {
                         // taskkill -im python3.10.exe -f
+                        await (await Process.start('taskkill', ['-im', 'python3.exe', '-f'])).exitCode;
                         await (await Process.start('taskkill', ['-im', 'python3.10.exe', '-f'])).exitCode;
                       },
                     ),
