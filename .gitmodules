@@ -2,3 +2,6 @@
 	path = intel_Cup_keyword_identifier
 	url = https://github.com/zst123/intel_Cup_keyword_identifier
 	branch = main
+[submodule "Intel_Cup_voice_feedback"]
+	path = Intel_Cup_voice_feedback
+	url = https://github.com/lunzard/Intel_Cup_voice_feedback
